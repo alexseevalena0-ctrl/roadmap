@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дорожная карта трансформации компании</title>
+<style>
+:root{
+  --green:#2e9e5b; --green-bg:#e6f6ec;
+  --blue:#2f6fed; --blue-bg:#e8f0fe;
+  --gray:#8a8f98; --gray-bg:#eef0f2;
+  --orange:#e08a1e; --orange-bg:#fdf1e0;
+  --red:#d64545; --red-bg:#fbe9e9;
+  --lightblue:#cfe0f5;
+  --ink:#1f2937; --ink-soft:#5b6472;
+  --bg:#f5f7fa; --card-bg:#ffffff; --border:#e2e6ec;
+  --radius:12px; --shadow:0 2px 10px rgba(20,30,50,0.06);
+  --shadow-hover:0 6px 18px rgba(20,30,50,0.10);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  background:var(--bg); color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+button{
+  font-family:inherit; cursor:pointer; border:1px solid var(--border);
+  background:var(--card-bg); color:var(--ink); border-radius:8px;
+  padding:8px 14px; font-size:14px; transition:all .15s ease;
+}
+button:hover{ box-shadow:var(--shadow-hover); border-color:#c7ccd4; }
+button.primary{ background:var(--blue); color:#fff; border-color:var(--blue); }
+button.primary:hover{ background:#2559c4; }
+button.danger{ color:var(--red); }
+select, input[type=text], input[type=search]{
+  font-family:inherit; font-size:14px; padding:7px 10px; border-radius:8px;
+  border:1px solid var(--border); background:#fff; color:var(--ink);
+}
+a{color:var(--blue);}
+
+/* ---------- Layout ---------- */
+.app{max-width:1320px; margin:0 auto; padding:18px 20px 60px;}
+header.topbar{
+  display:flex; justify-content:space-between; align-items:flex-start; gap:16px;
+  flex-wrap:wrap; margin-bottom:14px;
+}
+.title-block h1{font-size:22px; margin:0 0 4px; font-weight:700;}
+.title-block .subtitle{color:var(--ink-soft); font-size:13px;}
+.topbar-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+
+/* ---------- Summary dashboard ---------- */
+.summary{
+  background:var(--card-bg); border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:18px 20px; margin-bottom:16px; border:1px solid var(--border);
+}
+.summary-top{display:flex; align-items:center; gap:22px; flex-wrap:wrap; margin-bottom:14px;}
+.summary-ring{position:relative; width:92px; height:92px; flex:0 0 auto;}
+.summary-ring svg{transform:rotate(-90deg);}
+.summary-ring .ring-label{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:20px; font-weight:700;
+}
+.summary-headline{flex:1; min-width:200px;}
+.summary-headline .big{font-size:15px; color:var(--ink-soft);}
+.summary-headline .nearterm{font-size:13px; color:var(--ink-soft); margin-top:4px;}
+.stat-grid{
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(120px,1fr)); gap:10px;
+}
+.stat-box{
+  background:var(--gray-bg); border-radius:10px; padding:10px 12px; text-align:center;
+}
+.stat-box .num{font-size:20px; font-weight:700;}
+.stat-box .lbl{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+.stat-box.done{background:var(--green-bg);} .stat-box.done .num{color:var(--green);}
+.stat-box.progress{background:var(--blue-bg);} .stat-box.progress .num{color:var(--blue);}
+.stat-box.notstarted{background:var(--gray-bg);} .stat-box.notstarted .num{color:var(--ink-soft);}
+.stat-box.overdue{background:var(--red-bg);} .stat-box.overdue .num{color:var(--red);}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap;}
+.tab-btn{
+  border-radius:20px; padding:8px 16px; font-weight:600; font-size:13.5px;
+  background:#fff; border:1px solid var(--border); color:var(--ink-soft);
+}
+.tab-btn.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ---------- Month nav ---------- */
+.month-nav{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;
+  background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius);
+  padding:10px 14px; box-shadow:var(--shadow);
+}
+.month-nav .month-title{font-weight:700; font-size:16px; min-width:180px;}
+.month-nav .spacer{flex:1;}
+
+/* ---------- Filters ---------- */
+.filters{
+  background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius);
+  padding:14px; margin-bottom:16px; box-shadow:var(--shadow);
+  display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+}
+.filters .field{display:flex; flex-direction:column; gap:4px;}
+.filters .field label{font-size:11px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.02em;}
+.filters input[type=search]{min-width:220px;}
+.filters .checkfield{flex-direction:row; align-items:center; gap:6px; font-size:13px; margin-top:16px;}
+
+/* ---------- Month sections ---------- */
+.month-section{margin-bottom:26px;}
+.month-section-head{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:10px;
+}
+.month-section-head h2{font-size:17px; margin:0;}
+.progress-bar-track{flex:1; min-width:140px; height:10px; background:var(--gray-bg); border-radius:6px; overflow:hidden;}
+.progress-bar-fill{height:100%; border-radius:6px;}
+.progress-bar-fill.green{background:var(--green);}
+.progress-bar-fill.yellow{background:var(--orange);}
+.progress-bar-fill.red{background:var(--red);}
+.month-mini-stats{font-size:12.5px; color:var(--ink-soft);}
+
+/* ---------- Cards ---------- */
+.cards-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:14px;
+}
+.card{
+  background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:14px 16px; position:relative; transition:box-shadow .15s;
+  border-left:5px solid var(--gray);
+}
+.card:hover{box-shadow:var(--shadow-hover);}
+.card.status-done{border-left-color:var(--green); background:var(--green-bg);}
+.card.status-progress{border-left-color:var(--blue);}
+.card.status-notstarted{border-left-color:var(--gray);}
+.card.status-paused{border-left-color:var(--orange);}
+.card.status-cancelled{border-left-color:var(--red); opacity:.75;}
+.card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+.card-num{font-size:12px; font-weight:700; color:var(--ink-soft); background:var(--gray-bg); padding:2px 8px; border-radius:6px;}
+.card-block{font-size:11px; color:var(--ink-soft); margin-top:4px;}
+.card-name{font-size:14.5px; font-weight:600; margin:8px 0 6px; line-height:1.35;}
+.card-meta{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0;}
+.tag{font-size:11px; padding:3px 9px; border-radius:20px; font-weight:600;}
+.tag.date{background:var(--gray-bg); color:var(--ink-soft);}
+.tag.overdue{background:var(--red-bg); color:var(--red);}
+.tag.soon{background:var(--orange-bg); color:var(--orange);}
+.tag.resource{background:var(--blue-bg); color:var(--blue);}
+.card-result{font-size:12.5px; color:var(--ink-soft); margin:6px 0; line-height:1.4;}
+.card-dep{font-size:12px; color:var(--ink-soft); margin:4px 0;}
+.card-adjust{font-size:11.5px; color:var(--ink-soft); margin:4px 0;}
+.card-footer{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; border-top:1px dashed var(--border); padding-top:10px;}
+.toggle-wrap{display:flex; align-items:center; gap:8px;}
+.switch{position:relative; width:42px; height:24px; flex:0 0 auto;}
+.switch input{opacity:0; width:0; height:0;}
+.slider{position:absolute; inset:0; background:var(--gray-bg); border-radius:24px; transition:.15s; border:1px solid var(--border);}
+.slider:before{content:""; position:absolute; width:18px; height:18px; left:2px; top:2px; background:#fff; border-radius:50%; transition:.15s; box-shadow:0 1px 3px rgba(0,0,0,.3);}
+input:checked + .slider{background:var(--green);}
+input:checked + .slider:before{transform:translateX(18px);}
+.status-select{font-size:12.5px; padding:5px 8px;}
+.empty-note{color:var(--ink-soft); font-size:13px; padding:20px; text-align:center; background:var(--card-bg); border-radius:var(--radius); border:1px dashed var(--border);}
+
+/* ---------- Blocks view ---------- */
+.block-card{background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px 18px; margin-bottom:14px;}
+.block-head{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.block-head h3{margin:0; font-size:16px; flex:0 0 auto;}
+.block-pct{font-weight:700; font-size:15px;}
+.block-stats{font-size:12.5px; color:var(--ink-soft); margin-top:6px;}
+.block-sub-list{margin-top:10px; display:none;}
+.block-sub-list.open{display:block;}
+.block-sub-row{display:flex; gap:10px; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); font-size:13px;}
+.block-sub-row .num{font-weight:700; width:44px; flex:0 0 auto; color:var(--ink-soft);}
+.block-sub-row .nm{flex:1;}
+.block-toggle{background:none; border:none; color:var(--blue); font-size:12.5px; padding:2px 0;}
+
+/* ---------- People view ---------- */
+.people-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:14px;}
+.person-card{background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px 16px; cursor:pointer;}
+.person-card.active-person{outline:2px solid var(--blue);}
+.person-name{font-weight:700; font-size:15px; margin-bottom:6px;}
+.person-mini{font-size:12px; color:var(--ink-soft);}
+.person-detail{margin-top:16px;}
+
+/* ---------- Footer / labels ---------- */
+.section-title{font-size:18px; font-weight:700; margin:6px 0 12px;}
+.pill{display:inline-block; padding:2px 10px; border-radius:14px; font-size:11.5px; font-weight:700;}
+.pill.done{background:var(--green-bg); color:var(--green);}
+.pill.progress{background:var(--blue-bg); color:var(--blue);}
+.pill.notstarted{background:var(--gray-bg); color:var(--ink-soft);}
+.pill.paused{background:var(--orange-bg); color:var(--orange);}
+.pill.cancelled{background:var(--red-bg); color:var(--red);}
+
+/* ---------- Presentation mode ---------- */
+body.presentation .hide-in-presentation{display:none !important;}
+body.presentation .app{max-width:1500px;}
+body.presentation .card-name{font-size:19px;}
+body.presentation .card{padding:22px 24px;}
+body.presentation .summary-headline .big{font-size:19px;}
+body.presentation .stat-box .num{font-size:28px;}
+body.presentation .month-section-head h2{font-size:24px;}
+body.presentation .title-block h1{font-size:30px;}
+body.presentation .cards-grid{grid-template-columns:repeat(auto-fill, minmax(360px,1fr));}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px){
+  .summary-top{flex-direction:column; align-items:flex-start;}
+  .cards-grid{grid-template-columns:1fr;}
+  .month-nav .month-title{min-width:auto;}
+  .filters input[type=search]{min-width:100%;}
+}
+
+/* ---------- Облачная синхронизация: индикаторы, модальные окна, уведомления ---------- */
+.sync-chip{
+  display:inline-flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-soft);
+  background:var(--gray-bg); border:1px solid var(--border); border-radius:999px; padding:7px 13px;
+  white-space:nowrap;
+}
+.sync-chip .sync-dot{width:8px; height:8px; border-radius:50%; background:var(--gray); flex:0 0 auto;}
+.sync-chip.ok .sync-dot{background:var(--green);}
+.sync-chip.busy .sync-dot{background:var(--orange);}
+.sync-chip.err .sync-dot{background:var(--red);}
+.user-chip{
+  display:inline-flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft);
+  border:1px solid var(--border); border-radius:999px; padding:5px 6px 5px 13px; background:var(--card-bg);
+}
+.user-chip .role-badge{
+  font-size:11px; font-weight:700; border-radius:999px; padding:3px 8px;
+  background:var(--gray-bg); color:var(--ink-soft);
+}
+.user-chip .role-badge.edit{background:var(--green-bg); color:var(--green);}
+.user-chip .role-badge.admin{background:var(--blue-bg); color:var(--blue);}
+.user-chip button{padding:4px 10px; font-size:12px; border-radius:999px;}
+.card-sync{
+  font-size:11.5px; color:var(--ink-soft); margin-top:8px; padding-top:8px;
+  border-top:1px dashed var(--border);
+}
+.card-sync.pending{color:var(--orange);}
+button[disabled], select[disabled], input[disabled]{opacity:.55; cursor:not-allowed;}
+button[disabled]:hover{box-shadow:none; border-color:var(--border);}
+
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(20,30,50,.45); z-index:1000;
+  display:flex; align-items:center; justify-content:center; padding:16px;
+}
+.modal-backdrop[hidden]{display:none;}
+.modal{
+  background:var(--card-bg); border-radius:var(--radius); border:1px solid var(--border);
+  box-shadow:0 14px 44px rgba(20,30,50,.25); padding:22px; width:100%; max-width:430px;
+}
+.modal h3{margin:0 0 8px; font-size:17px;}
+.modal p{margin:0 0 14px; font-size:13.5px; color:var(--ink-soft); line-height:1.45;}
+.modal input[type=text], .modal input[type=email]{width:100%; margin-bottom:14px;}
+.modal-actions{display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;}
+
+.toast-wrap{
+  position:fixed; right:16px; bottom:16px; z-index:1100;
+  display:flex; flex-direction:column; gap:8px; max-width:min(380px, 92vw);
+}
+.toast{
+  background:var(--ink); color:#fff; border-radius:10px; padding:11px 14px;
+  font-size:13px; line-height:1.4; box-shadow:var(--shadow-hover);
+}
+.toast.warn{background:var(--orange);}
+.toast.err{background:var(--red);}
+.toast.ok{background:var(--green);}
+@media (max-width:640px){
+  .toast-wrap{left:16px; right:16px; max-width:none;}
+  .sync-chip, .user-chip{font-size:12px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="title-block">
+      <h1>Дорожная карта трансформации компании</h1>
+      <div class="subtitle">Оптимизация бизнес-процессов · интерактивная версия для команды</div>
+    </div>
+    <div class="topbar-actions hide-in-presentation">
+      <input type="text" id="searchBox" placeholder="Поиск: номер, задача, ответственный, результат..." style="min-width:260px;">
+      <span class="sync-chip" id="syncChip"><span class="sync-dot"></span><span id="syncText">Запуск дашборда...</span></span>
+      <span class="user-chip" id="userChip">
+        <span id="userChipName">Гость</span>
+        <span class="role-badge" id="userRoleBadge">просмотр</span>
+        <button id="btnUserName" title="Изменить имя, под которым сохраняются изменения">Имя</button>
+        <button id="btnAuth">Войти</button>
+      </span>
+      <button id="btnRefresh" title="Загрузить актуальные данные из облачной базы">Обновить данные</button>
+      <button id="btnPresent" class="primary">Режим презентации</button>
+    </div>
+  </header>
+
+  <section class="summary" id="summaryBlock"></section>
+
+  <div class="tabs hide-in-presentation">
+    <button class="tab-btn active" data-tab="months">Дорожная карта по месяцам</button>
+    <button class="tab-btn" data-tab="people">Задачи по ответственным</button>
+    <button class="tab-btn" data-tab="blocks">Этапы трансформации</button>
+  </div>
+
+  <!-- ================= MONTHS TAB ================= -->
+  <div class="tab-panel active" id="tab-months">
+
+    <div class="month-nav hide-in-presentation">
+      <button id="btnPrevMonth">&larr; Предыдущий месяц</button>
+      <button id="btnCurMonth">Текущий месяц</button>
+      <button id="btnNextMonth">Следующий месяц &rarr;</button>
+      <select id="monthPicker"></select>
+      <span class="spacer"></span>
+      <button id="btnAllMonths">Показать все месяцы</button>
+    </div>
+
+    <div class="filters hide-in-presentation" id="filtersBlock">
+      <div class="field">
+        <label>Крупный шаг</label>
+        <select id="filterBlock"><option value="">Все шаги</option></select>
+      </div>
+      <div class="field">
+        <label>Ответственный</label>
+        <select id="filterResource"><option value="">Все ответственные</option></select>
+      </div>
+      <div class="field">
+        <label>Статус</label>
+        <select id="filterStatus">
+          <option value="">Все статусы</option>
+          <option>Не начато</option>
+          <option>В работе</option>
+          <option>Выполнено</option>
+          <option>Приостановлено</option>
+          <option>Отменено</option>
+        </select>
+      </div>
+      <label class="checkfield"><input type="checkbox" id="filterOverdue"> Только просроченные</label>
+      <label class="checkfield"><input type="checkbox" id="filterNoDate"> Только без срока</label>
+      <label class="checkfield"><input type="checkbox" id="filterMine"> Только незавершённые ответственного:</label>
+      <div class="field">
+        <label>&nbsp;</label>
+        <select id="filterMineName"><option value="">Выберите...</option></select>
+      </div>
+      <button id="btnResetFilters">Сбросить фильтры</button>
+    </div>
+
+    <div id="monthsContainer"></div>
+  </div>
+
+  <!-- ================= PEOPLE TAB ================= -->
+  <div class="tab-panel" id="tab-people">
+    <div class="section-title">Задачи по ответственным</div>
+    <div class="people-grid" id="peopleGrid"></div>
+    <div class="person-detail" id="personDetail"></div>
+  </div>
+
+  <!-- ================= BLOCKS TAB ================= -->
+  <div class="tab-panel" id="tab-blocks">
+    <div class="section-title">Этапы трансформации</div>
+    <div id="blocksContainer"></div>
+  </div>
+
+  <div class="hide-in-presentation" style="margin-top:30px; padding-top:16px; border-top:1px solid var(--border); display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+    <button id="btnBackup">Сохранить резервную копию</button>
+    <button id="btnRestore">Загрузить резервную копию</button>
+    <input type="file" id="restoreFile" accept="application/json" style="display:none;">
+    <button id="btnReset" class="danger">Сбросить изменения</button>
+    <span id="sourceNote" style="font-size:12px; color:var(--ink-soft); margin-left:auto;">Статусы хранятся в общей облачной базе — их видят все сотрудники по одной ссылке.</span>
+  </div>
+
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">Заголовок</h3>
+    <p id="modalText">Текст</p>
+    <input type="text" id="modalInput" autocomplete="off">
+    <div class="modal-actions">
+      <button id="modalCancel">Отмена</button>
+      <button id="modalOk" class="primary">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<noscript><div style="padding:16px;color:#d64545;">Для работы дашборда нужен включённый JavaScript.</div></noscript>
+<script>
+window.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){
+    if(typeof APP_VERSION === 'undefined'){
+      var el = document.getElementById('syncText');
+      if(el) el.textContent = 'Файл app.js не загрузился';
+      var note = document.getElementById('sourceNote');
+      if(note) note.textContent = 'Не удалось загрузить файл app.js — проверьте, что он лежит рядом с index.html на сайте.';
+    }
+  }, 8000);
+});
+</script>
+<script src="tasks.js?v=6"></script>
+<script src="app.js?v=6"></script>
+</body>
+</html>
