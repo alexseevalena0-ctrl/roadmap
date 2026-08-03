@@ -371,6 +371,7 @@ button[disabled]:hover{box-shadow:none; border-color:var(--border);}
     <h3 id="modalTitle">Заголовок</h3>
     <p id="modalText">Текст</p>
     <input type="text" id="modalInput" autocomplete="off">
+    <input type="password" id="modalInput2" autocomplete="current-password" style="display:none;">
     <div class="modal-actions">
       <button id="modalCancel">Отмена</button>
       <button id="modalOk" class="primary">Сохранить</button>
@@ -388,12 +389,12 @@ window.addEventListener('DOMContentLoaded', function(){
       var el = document.getElementById('syncText');
       if(el) el.textContent = 'Файл app.js не загрузился';
       var note = document.getElementById('sourceNote');
-      if(note) note.textContent = 'Не удалось загрузить файл app.js — проверьте, что он лежит рядом с index.html на сайте.';
+      if(note) note.textContent = 'Не удалось загрузить app.js — проверьте, что он лежит рядом с index.html.';
     }
   }, 8000);
 });
 </script>
-<script src="tasks.js?v=6"></script>
-<script src="app.js?v=6"></script>
+<script src="tasks.js?v=7"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>
